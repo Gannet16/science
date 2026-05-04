@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ทฤษฎีอนุภาคของสสาร</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&family=Noto+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #1c2128;
+      --border: rgba(255,255,255,0.08);
+      --text: #e6edf3;
+      --text-muted: #7d8590;
+      --solid-color: #58a6ff;
+      --solid-bg: rgba(88,166,255,0.1);
+      --solid-border: rgba(88,166,255,0.3);
+      --liquid-color: #3fb950;
+      --liquid-bg: rgba(63,185,80,0.1);
+      --liquid-border: rgba(63,185,80,0.3);
+      --gas-color: #f0883e;
+      --gas-bg: rgba(240,136,62,0.1);
+      --gas-border: rgba(240,136,62,0.3);
+      --accent: #58a6ff;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Sarabun', 'Noto Sans Thai', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* Background grid pattern */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(88,166,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(88,166,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    .wrapper { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+    /* Header */
+    .header { text-align: center; margin-bottom: 3rem; }
+    .header-badge {
+      display: inline-block;
+      background: var(--solid-bg); border: 1px solid var(--solid-border);
+      color: var(--solid-color); font-size: 12px; font-weight: 500;
+      padding: 4px 14px; border-radius: 20px; margin-bottom: 16px;
+      letter-spacing: 0.5px;
+    }
+    .header h1 {
+      font-size: clamp(24px, 5vw, 40px); font-weight: 600;
+      color: var(--text); margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+    .header h1 span {
+      background: linear-gradient(135deg, #58a6ff, #3fb950, #f0883e);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .header p { color: var(--text-muted); font-size: 15px; }
+
+    /* Tabs */
+    .tabs {
+      display: flex; gap: 6px; justify-content: center;
+      margin-bottom: 2rem; flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: 8px 22px; border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface); color: var(--text-muted);
+      cursor: pointer; font-size: 14px; font-weight: 400;
+      font-family: inherit; transition: all .2s;
+    }
+    .tab-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.15); background: var(--surface2); }
+    .tab-btn.active.solid { background: var(--solid-bg); color: var(--solid-color); border-color: var(--solid-border); font-weight: 500; }
+    .tab-btn.active.liquid { background: var(--liquid-bg); color: var(--liquid-color); border-color: var(--liquid-border); font-weight: 500; }
+    .tab-btn.active.gas { background: var(--gas-bg); color: var(--gas-color); border-color: var(--gas-border); font-weight: 500; }
+    .tab-btn.active.compare { background: rgba(255,255,255,0.06); color: var(--text); border-color: rgba(255,255,255,0.2); font-weight: 500; }
+
+    /* Panels */
+    .panel { display: none; animation: fadeUp .25s ease; }
+    .panel.active { display: block; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Viz card */
+    .viz-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+      display: flex; gap: 1.5rem; align-items: center;
+      margin-bottom: 1rem;
+    }
+    .canvas-wrap {
+      flex-shrink: 0; border-radius: 10px;
+      overflow: hidden; position: relative;
+    }
+    canvas {
+      display: block;
+      border-radius: 10px;
+    }
+    .viz-info { flex: 1; min-width: 0; }
+    .state-title { font-size: 22px; font-weight: 600; margin-bottom: 2px; }
+    .state-eng { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; letter-spacing: 0.5px; text-transform: uppercase; }
+    .props { display: flex; flex-direction: column; gap: 7px; }
+    .prop-row { display: flex; gap: 10px; font-size: 13.5px; }
+    .prop-key { color: var(--text-muted); width: 90px; flex-shrink: 0; }
+    .prop-val { color: var(--text); }
+
+    /* Compare */
+    .compare-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .cmp-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .cmp-head {
+      padding: 12px 14px; font-size: 14px; font-weight: 500;
+      border-bottom: 1px solid var(--border);
+    }
+    .cmp-head.solid { color: var(--solid-color); background: var(--solid-bg); }
+    .cmp-head.liquid { color: var(--liquid-color); background: var(--liquid-bg); }
+    .cmp-head.gas { color: var(--gas-color); background: var(--gas-bg); }
+    .cmp-body { padding: 10px 14px; }
+    .cmp-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 12px; border-bottom: 1px solid var(--border); }
+    .cmp-row:last-child { border: none; }
+    .cmp-k { color: var(--text-muted); }
+    .cmp-v { font-weight: 500; }
+
+    /* Temperature section */
+    .temp-section {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-top: 1rem;
+    }
+    .temp-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+    .temp-title { font-size: 14px; font-weight: 500; }
+    .temp-subtitle { font-size: 12px; color: var(--text-muted); }
+    .slider-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .slider-row label { font-size: 13px; color: var(--text-muted); white-space: nowrap; }
+    .slider-row input[type=range] {
+      flex: 1; -webkit-appearance: none; height: 4px;
+      background: var(--surface2); border-radius: 2px; outline: none;
+    }
+    .slider-row input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 16px; height: 16px;
+      border-radius: 50%; background: var(--accent);
+      cursor: pointer; transition: transform .15s;
+    }
+    .slider-row input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+    .temp-display { font-size: 14px; font-weight: 600; min-width: 54px; text-align: right; }
+    .state-bar { display: flex; height: 26px; border-radius: 20px; overflow: hidden; border: 1px solid var(--border); }
+    .state-seg {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 500; transition: flex .4s cubic-bezier(.4,0,.2,1);
+      white-space: nowrap; overflow: hidden;
+    }
+    .seg-solid { background: rgba(88,166,255,0.25); color: var(--solid-color); }
+    .seg-liquid { background: rgba(63,185,80,0.25); color: var(--liquid-color); }
+    .seg-gas { background: rgba(240,136,62,0.25); color: var(--gas-color); }
+    .bar-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+    .curr-state {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 14px; border-radius: 20px; font-size: 13px; font-weight: 500;
+      margin-top: 12px; border: 1px solid;
+    }
+    .curr-state.solid { background: var(--solid-bg); color: var(--solid-color); border-color: var(--solid-border); }
+    .curr-state.liquid { background: var(--liquid-bg); color: var(--liquid-color); border-color: var(--liquid-border); }
+    .curr-state.gas { background: var(--gas-bg); color: var(--gas-color); border-color: var(--gas-border); }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+    /* Info cards row */
+    .info-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 1rem; }
+    .info-card {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 12px 14px;
+    }
+    .info-card-label { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.4px; }
+    .info-card-val { font-size: 14px; font-weight: 500; }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .viz-card { flex-direction: column; align-items: flex-start; }
+      .compare-grid { grid-template-columns: 1fr; }
+      .info-cards { grid-template-columns: repeat(3, 1fr); }
+      .canvas-wrap canvas { width: 100% !important; height: auto !important; }
+    }
+
+    footer { text-align: center; margin-top: 3rem; font-size: 12px; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+
+    <div class="header">
+      <div class="header-badge">วิทยาศาสตร์ ม.ต้น</div>
+      <h1>ทฤษฎี<span>อนุภาคของสสาร</span></h1>
+      <p>สสารทุกอย่างประกอบด้วยอนุภาคขนาดเล็กที่มองไม่เห็นด้วยตาเปล่า</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active solid" data-tab="solid" onclick="showTab('solid', this)">ของแข็ง</button>
+      <button class="tab-btn liquid" data-tab="liquid" onclick="showTab('liquid', this)">ของเหลว</button>
+      <button class="tab-btn gas" data-tab="gas" onclick="showTab('gas', this)">ก๊าซ</button>
+      <button class="tab-btn compare" data-tab="compare" onclick="showTab('compare', this)">เปรียบเทียบ</button>
+    </div>
+
+    <!-- SOLID -->
+    <div id="panel-solid" class="panel active">
+      <div class="viz-card">
+        <div class="canvas-wrap">
+          <canvas id="canvas-solid" width="200" height="180" style="background:#0d1117;"></canvas>
+        </div>
+        <div class="viz-info">
+          <div class="state-title" style="color:var(--solid-color)">ของแข็ง</div>
+          <div class="state-eng">Solid State</div>
+          <div class="props">
+            <div class="prop-row"><span class="prop-key">รูปร่าง</span><span class="prop-val">คงที่ ไม่เปลี่ยนแปลง</span></div>
+            <div class="prop-row"><span class="prop-key">ปริมาตร</span><span class="prop-val">คงที่</span></div>
+            <div class="prop-row"><span class="prop-key">อนุภาค</span><span class="prop-val">ชิดกันแน่น เป็นระเบียบ</span></div>
+            <div class="prop-row"><span class="prop-key">การเคลื่อนที่</span><span class="prop-val">สั่นอยู่กับที่เท่านั้น</span></div>
+            <div class="prop-row"><span class="prop-key">แรงยึดเหนี่ยว</span><span class="prop-val">แข็งแรงมาก</span></div>
+            <div class="prop-row"><span class="prop-key">ตัวอย่าง</span><span class="prop-val">น้ำแข็ง, เหล็ก, หิน, เกลือ</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="info-cards">
+        <div class="info-card">
+          <div class="info-card-label">ระยะห่างอนุภาค</div>
+          <div class="info-card-val" style="color:var(--solid-color)">ชิดมาก</div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-label">พลังงาน</div>
+          <div class="info-card-val" style="color:var(--solid-color)">ต่ำสุด</div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-label">การอัดตัว</div>
+          <div class="info-card-val" style="color:var(--solid-color)">อัดไม่ได้</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIQUID -->
+    <div id="panel-liquid" class="panel">
+      <div class="viz-card">
+        <div class="canvas-wrap">
+          <canvas id="canvas-liquid" width="200" height="180" style="background:#0d1117;"></canvas>
+        </div>
+        <div class="viz-info">
+          <div class="state-title" style="color:var(--liquid-color)">ของเหลว</div>
+          <div class="state-eng">Liquid State</div>
+          <div class="props">
+            <div class="prop-row"><span class="prop-key">รูปร่าง</span><span class="prop-val">เปลี่ยนตามภาชนะ</span></div>
+            <div class="prop-row"><span class="prop-key">ปริมาตร</span><span class="prop-val">คงที่</span></div>
+            <div class="prop-row"><span class="prop-key">อนุภาค</span><span class="prop-val">อยู่ใกล้กัน ไม่เป็นระเบียบ</span></div>
+            <div class="prop-row"><span class="prop-key">การเคลื่อนที่</span><span class="prop-val">ไหลผ่านกันได้</span></div>
+            <div class="prop-row"><span class="prop-key">แรงยึดเหนี่ยว</span><span class="prop-val">ปานกลาง</span></div>
+            <div class="prop-row"><span class="prop-key">ตัวอย่าง</span><span class="prop-val">น้ำ, น้ำมัน, ปรอท, แอลกอฮอล์</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="info-cards">
+        <div class="info-card">
+          <div class="info-card-label">ระยะห่างอนุภาค</div>
+          <div class="info-card-val" style="color:var(--liquid-color)">ใกล้กัน</div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-label">พลังงาน</div>
+          <div class="info-card-val" style="color:var(--liquid-color)">ปานกลาง</div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-label">การอัดตัว</div>
+          <div class="info-card-val" style="color:var(--liquid-color)">อัดได้น้อย</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GAS -->
+    <div id="panel-gas" class="panel">
+      <div class="viz-card">
+        <div class="canvas-wrap">
+          <canvas id="canvas-gas" width="200" height="180" style="background:#0d1117;"></canvas>
+        </div>
+        <div class="viz-info">
+          <div class="state-title" style="color:var(--gas-color)">ก๊าซ</div>
+          <div class="state-eng">Gas State</div>
+          <div class="props">
+            <div class="prop-row"><span class="prop-key">รูปร่าง</span><span class="prop-val">เปลี่ยนตามภาชนะ (ฟุ้งเต็ม)</span></div>
+            <div class="prop-row"><span class="prop-key">ปริมาตร</span><span class="prop-val">ไม่คงที่ อัดได้</span></div>
+            <div class="prop-row"><span class="prop-key">อนุภาค</span><span class="prop-val">อยู่ห่างกันมาก กระจัดกระจาย</span></div>
+            <div class="prop-row"><span class="prop-key">การเคลื่อนที่</span><span class="prop-val">อิสระและรวดเร็วมาก</span></div>
+            <div class="prop-row"><span class="prop-key">แรงยึดเหนี่ยว</span><span class="prop-val">น้อยมาก</span></div>
+            <div class="prop-row"><span class="prop-key">ตัวอย่าง</span><span class="prop-val">ไอน้ำ, อากาศ, ออกซิเจน, CO₂</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="info-cards">
+        <div class="info-card">
+          <div class="info-card-label">ระยะห่างอนุภาค</div>
+          <div class="info-card-val" style="color:var(--gas-color)">ห่างมาก</div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-label">พลังงาน</div>
+          <div class="info-card-val" style="color:var(--gas-color)">สูงสุด</div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-label">การอัดตัว</div>
+          <div class="info-card-val" style="color:var(--gas-color)">อัดได้มาก</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPARE -->
+    <div id="panel-compare" class="panel">
+      <div class="compare-grid">
+        <div class="cmp-card">
+          <div class="cmp-head solid">ของแข็ง (Solid)</div>
+          <div class="cmp-body">
+            <div class="cmp-row"><span class="cmp-k">รูปร่าง</span><span class="cmp-v" style="color:var(--solid-color)">คงที่</span></div>
+            <div class="cmp-row"><span class="cmp-k">ปริมาตร</span><span class="cmp-v" style="color:var(--solid-color)">คงที่</span></div>
+            <div class="cmp-row"><span class="cmp-k">การจัดเรียง</span><span class="cmp-v">ระเบียบ ชิดกัน</span></div>
+            <div class="cmp-row"><span class="cmp-k">การเคลื่อนที่</span><span class="cmp-v">สั่นกับที่</span></div>
+            <div class="cmp-row"><span class="cmp-k">แรงยึดเหนี่ยว</span><span class="cmp-v">แข็งแรงมาก</span></div>
+            <div class="cmp-row"><span class="cmp-k">พลังงาน</span><span class="cmp-v">ต่ำสุด</span></div>
+          </div>
+        </div>
+        <div class="cmp-card">
+          <div class="cmp-head liquid">ของเหลว (Liquid)</div>
+          <div class="cmp-body">
+            <div class="cmp-row"><span class="cmp-k">รูปร่าง</span><span class="cmp-v" style="color:var(--liquid-color)">ตามภาชนะ</span></div>
+            <div class="cmp-row"><span class="cmp-k">ปริมาตร</span><span class="cmp-v" style="color:var(--liquid-color)">คงที่</span></div>
+            <div class="cmp-row"><span class="cmp-k">การจัดเรียง</span><span class="cmp-v">ใกล้กัน ไม่ระเบียบ</span></div>
+            <div class="cmp-row"><span class="cmp-k">การเคลื่อนที่</span><span class="cmp-v">ไหลผ่านกัน</span></div>
+            <div class="cmp-row"><span class="cmp-k">แรงยึดเหนี่ยว</span><span class="cmp-v">ปานกลาง</span></div>
+            <div class="cmp-row"><span class="cmp-k">พลังงาน</span><span class="cmp-v">ปานกลาง</span></div>
+          </div>
+        </div>
+        <div class="cmp-card">
+          <div class="cmp-head gas">ก๊าซ (Gas)</div>
+          <div class="cmp-body">
+            <div class="cmp-row"><span class="cmp-k">รูปร่าง</span><span class="cmp-v" style="color:var(--gas-color)">ฟุ้งเต็มภาชนะ</span></div>
+            <div class="cmp-row"><span class="cmp-k">ปริมาตร</span><span class="cmp-v" style="color:var(--gas-color)">ไม่คงที่</span></div>
+            <div class="cmp-row"><span class="cmp-k">การจัดเรียง</span><span class="cmp-v">ห่างกัน กระจัดกระจาย</span></div>
+            <div class="cmp-row"><span class="cmp-k">การเคลื่อนที่</span><span class="cmp-v">อิสระ รวดเร็ว</span></div>
+            <div class="cmp-row"><span class="cmp-k">แรงยึดเหนี่ยว</span><span class="cmp-v">น้อยมาก</span></div>
+            <div class="cmp-row"><span class="cmp-k">พลังงาน</span><span class="cmp-v">สูงสุด</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Temperature Slider -->
+    <div class="temp-section" id="temp-section">
+      <div class="temp-title-row">
+        <div>
+          <div class="temp-title">การเปลี่ยนสถานะตามอุณหภูมิ</div>
+          <div class="temp-subtitle">น้ำ (H₂O) — ทดลองเลื่อน slider</div>
+        </div>
+        <div id="curr-state-badge"></div>
+      </div>
+      <div class="slider-row">
+        <label>อุณหภูมิ</label>
+        <input type="range" min="-30" max="150" value="25" id="temp-slider" oninput="updateTemp(this.value)">
+        <div class="temp-display" id="temp-val">25°C</div>
+      </div>
+      <div class="state-bar">
+        <div class="state-seg seg-solid" id="seg-solid">ของแข็ง</div>
+        <div class="state-seg seg-liquid" id="seg-liquid">ของเหลว</div>
+        <div class="state-seg seg-gas" id="seg-gas">ก๊าซ</div>
+      </div>
+      <div class="bar-labels"><span>-30°C</span><span>0°C</span><span>100°C</span><span>150°C</span></div>
+    </div>
+
+    <footer>สื่อการเรียนรู้วิทยาศาสตร์ — ทฤษฎีอนุภาคของสสาร</footer>
+  </div>
+
+  <script>
+    // --- Tab switching ---
+    function showTab(state, btn) {
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('active','solid','liquid','gas','compare');
+      });
+      document.getElementById('panel-' + state).classList.add('active');
+      btn.classList.add('active', state);
+      document.getElementById('temp-section').style.display = state === 'compare' ? 'none' : '';
+    }
+
+    // --- Particle animations ---
+    function solidDraw(ctx, W, H, t) {
+      ctx.clearRect(0, 0, W, H);
+      const cols = 8, rows = 7;
+      const px = W / (cols + 1), py = (H - 20) / (rows + 1);
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const bx = px * (c + 1), by = 18 + py * (r + 1);
+          const jx = Math.sin(t * 3 + (r * cols + c) * 0.73) * 1.3;
+          const jy = Math.cos(t * 2.7 + (r * cols + c) * 1.1) * 1.3;
+          ctx.beginPath();
+          ctx.arc(bx + jx, by + jy, 6.5, 0, Math.PI * 2);
+          ctx.fillStyle = '#58a6ff';
+          ctx.globalAlpha = 0.82;
+          ctx.fill();
+          ctx.globalAlpha = 1;
+        }
+      }
+    }
+
+    function liquidDraw(ctx, W, H, particles) {
+      ctx.clearRect(0, 0, W, H);
+      // surface wave
+      ctx.beginPath();
+      ctx.moveTo(0, 18);
+      for (let x = 0; x <= W; x += 4) {
+        ctx.lineTo(x, 18 + Math.sin(x * 0.12 + Date.now() * 0.002) * 2);
+      }
+      ctx.lineTo(W, 0); ctx.lineTo(0, 0); ctx.closePath();
+      ctx.fillStyle = 'rgba(63,185,80,0.06)';
+      ctx.fill();
+
+      particles.forEach(p => {
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 9 || p.x > W - 9) p.vx *= -1;
+        if (p.y < 20 || p.y > H - 9) p.vy *= -1;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 7, 0, Math.PI * 2);
+        ctx.fillStyle = '#3fb950';
+        ctx.globalAlpha = 0.78;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      });
+    }
+
+    function gasDraw(ctx, W, H, particles) {
+      ctx.clearRect(0, 0, W, H);
+      particles.forEach(p => {
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 7 || p.x > W - 7) { p.vx *= -1; p.x = Math.max(7, Math.min(W-7, p.x)); }
+        if (p.y < 7 || p.y > H - 7) { p.vy *= -1; p.y = Math.max(7, Math.min(H-7, p.y)); }
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 5.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#f0883e';
+        ctx.globalAlpha = 0.8;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      });
+    }
+
+    // Init
+    const cSolid = document.getElementById('canvas-solid');
+    const cLiquid = document.getElementById('canvas-liquid');
+    const cGas = document.getElementById('canvas-gas');
+    const ctxS = cSolid.getContext('2d');
+    const ctxL = cLiquid.getContext('2d');
+    const ctxG = cGas.getContext('2d');
+
+    const liquidParticles = Array.from({length: 34}, () => ({
+      x: 15 + Math.random() * 170, y: 25 + Math.random() * 145,
+      vx: (Math.random() - 0.5) * 0.65, vy: (Math.random() - 0.5) * 0.65
+    }));
+    const gasParticles = Array.from({length: 20}, () => ({
+      x: 15 + Math.random() * 170, y: 15 + Math.random() * 150,
+      vx: (Math.random() - 0.5) * 2.4, vy: (Math.random() - 0.5) * 2.4
+    }));
+
+    let t = 0;
+    function animate() {
+      t += 0.05;
+      solidDraw(ctxS, 200, 180, t);
+      liquidDraw(ctxL, 200, 180, liquidParticles);
+      gasDraw(ctxG, 200, 180, gasParticles);
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    // --- Temperature slider ---
+    function updateTemp(val) {
+      const v = parseInt(val);
+      document.getElementById('temp-val').textContent = v + '°C';
+      const total = 200;
+      let s, l, g;
+      if (v < 0) { s = total; l = 0; g = 0; }
+      else if (v < 100) {
+        s = Math.round(total * 0.14);
+        l = total - s; g = 0;
+      } else {
+        s = Math.round(total * 0.10);
+        l = Math.round(total * 0.12);
+        g = total - s - l;
+      }
+      const segS = document.getElementById('seg-solid');
+      const segL = document.getElementById('seg-liquid');
+      const segG = document.getElementById('seg-gas');
+      segS.style.flex = s; segS.style.display = s > 0 ? '' : 'none';
+      segL.style.flex = l; segL.style.display = l > 0 ? '' : 'none';
+      segG.style.flex = g; segG.style.display = g > 0 ? '' : 'none';
+
+      let label, cls, desc;
+      if (v < 0) { label = 'ของแข็ง'; cls = 'solid'; desc = 'น้ำแข็ง (Ice)'; }
+      else if (v < 100) { label = 'ของเหลว'; cls = 'liquid'; desc = 'น้ำ (Water)'; }
+      else { label = 'ก๊าซ'; cls = 'gas'; desc = 'ไอน้ำ (Steam)'; }
+      document.getElementById('curr-state-badge').innerHTML =
+        `<span class="curr-state ${cls}"><span class="dot"></span>${desc} — ${label}</span>`;
+    }
+    updateTemp(25);
+  </script>
+</body>
+</html>
