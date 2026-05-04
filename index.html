@@ -1,514 +1,1029 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ทฤษฎีอนุภาคของสสาร</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&family=Noto+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #0d1117;
-      --surface: #161b22;
-      --surface2: #1c2128;
-      --border: rgba(255,255,255,0.08);
-      --text: #e6edf3;
-      --text-muted: #7d8590;
-      --solid-color: #58a6ff;
-      --solid-bg: rgba(88,166,255,0.1);
-      --solid-border: rgba(88,166,255,0.3);
-      --liquid-color: #3fb950;
-      --liquid-bg: rgba(63,185,80,0.1);
-      --liquid-border: rgba(63,185,80,0.3);
-      --gas-color: #f0883e;
-      --gas-bg: rgba(240,136,62,0.1);
-      --gas-border: rgba(240,136,62,0.3);
-      --accent: #58a6ff;
-      --radius: 12px;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Sarabun', 'Noto Sans Thai', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      line-height: 1.6;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>นักสืบเปลี่ยนร่าง | Physical vs Chemical Change</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700;900&family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --panel: #111827;
+    --panel2: #1a2235;
+    --physical: #00c9ff;
+    --chemical: #ff6b35;
+    --accent: #ffd700;
+    --text: #e8eaf6;
+    --text-dim: #8892b0;
+    --green: #00e676;
+    --purple: #9c27b0;
+    --glow-blue: 0 0 30px rgba(0,201,255,0.5);
+    --glow-orange: 0 0 30px rgba(255,107,53,0.5);
+  }
 
-    /* Background grid pattern */
-    body::before {
-      content: '';
-      position: fixed; inset: 0; z-index: 0;
-      background-image:
-        linear-gradient(rgba(88,166,255,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(88,166,255,0.03) 1px, transparent 1px);
-      background-size: 40px 40px;
-      pointer-events: none;
-    }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    .wrapper { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+  body {
+    font-family: 'Sarabun', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-    /* Header */
-    .header { text-align: center; margin-bottom: 3rem; }
-    .header-badge {
-      display: inline-block;
-      background: var(--solid-bg); border: 1px solid var(--solid-border);
-      color: var(--solid-color); font-size: 12px; font-weight: 500;
-      padding: 4px 14px; border-radius: 20px; margin-bottom: 16px;
-      letter-spacing: 0.5px;
-    }
-    .header h1 {
-      font-size: clamp(24px, 5vw, 40px); font-weight: 600;
-      color: var(--text); margin-bottom: 8px;
-      letter-spacing: -0.5px;
-    }
-    .header h1 span {
-      background: linear-gradient(135deg, #58a6ff, #3fb950, #f0883e);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .header p { color: var(--text-muted); font-size: 15px; }
+  /* Animated starfield background */
+  .stars {
+    position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+  }
+  .star {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle var(--d, 3s) infinite var(--delay, 0s);
+  }
+  @keyframes twinkle {
+    0%,100% { opacity: 0.2; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.5); }
+  }
 
-    /* Tabs */
-    .tabs {
-      display: flex; gap: 6px; justify-content: center;
-      margin-bottom: 2rem; flex-wrap: wrap;
-    }
-    .tab-btn {
-      padding: 8px 22px; border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--surface); color: var(--text-muted);
-      cursor: pointer; font-size: 14px; font-weight: 400;
-      font-family: inherit; transition: all .2s;
-    }
-    .tab-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.15); background: var(--surface2); }
-    .tab-btn.active.solid { background: var(--solid-bg); color: var(--solid-color); border-color: var(--solid-border); font-weight: 500; }
-    .tab-btn.active.liquid { background: var(--liquid-bg); color: var(--liquid-color); border-color: var(--liquid-border); font-weight: 500; }
-    .tab-btn.active.gas { background: var(--gas-bg); color: var(--gas-color); border-color: var(--gas-border); font-weight: 500; }
-    .tab-btn.active.compare { background: rgba(255,255,255,0.06); color: var(--text); border-color: rgba(255,255,255,0.2); font-weight: 500; }
+  /* ===== HEADER ===== */
+  header {
+    position: relative; z-index: 10;
+    text-align: center;
+    padding: 40px 20px 20px;
+  }
+  .badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #1a2235, #2d3748);
+    border: 1px solid rgba(255,215,0,0.3);
+    border-radius: 30px;
+    padding: 6px 18px;
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  h1 {
+    font-family: 'Kanit', sans-serif;
+    font-weight: 900;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    line-height: 1.1;
+    background: linear-gradient(135deg, #00c9ff 0%, #ffd700 50%, #ff6b35 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+  .subtitle {
+    color: var(--text-dim);
+    font-size: 1rem;
+    letter-spacing: 1px;
+  }
 
-    /* Panels */
-    .panel { display: none; animation: fadeUp .25s ease; }
-    .panel.active { display: block; }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  /* ===== NAV TABS ===== */
+  .nav-tabs {
+    position: relative; z-index: 10;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    padding: 20px;
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    font-family: 'Kanit', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 10px 24px;
+    border-radius: 50px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: var(--panel);
+    color: var(--text-dim);
+  }
+  .tab-btn.active-physical {
+    border-color: var(--physical);
+    color: var(--physical);
+    box-shadow: var(--glow-blue);
+    background: rgba(0,201,255,0.1);
+  }
+  .tab-btn.active-chemical {
+    border-color: var(--chemical);
+    color: var(--chemical);
+    box-shadow: var(--glow-orange);
+    background: rgba(255,107,53,0.1);
+  }
+  .tab-btn.active-signs {
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: 0 0 30px rgba(255,215,0,0.4);
+    background: rgba(255,215,0,0.1);
+  }
+  .tab-btn.active-quiz {
+    border-color: var(--green);
+    color: var(--green);
+    box-shadow: 0 0 30px rgba(0,230,118,0.4);
+    background: rgba(0,230,118,0.1);
+  }
 
-    /* Viz card */
-    .viz-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 1.5rem;
-      display: flex; gap: 1.5rem; align-items: center;
-      margin-bottom: 1rem;
-    }
-    .canvas-wrap {
-      flex-shrink: 0; border-radius: 10px;
-      overflow: hidden; position: relative;
-    }
-    canvas {
-      display: block;
-      border-radius: 10px;
-    }
-    .viz-info { flex: 1; min-width: 0; }
-    .state-title { font-size: 22px; font-weight: 600; margin-bottom: 2px; }
-    .state-eng { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; letter-spacing: 0.5px; text-transform: uppercase; }
-    .props { display: flex; flex-direction: column; gap: 7px; }
-    .prop-row { display: flex; gap: 10px; font-size: 13.5px; }
-    .prop-key { color: var(--text-muted); width: 90px; flex-shrink: 0; }
-    .prop-val { color: var(--text); }
+  /* ===== SECTIONS ===== */
+  .section { display: none; position: relative; z-index: 10; }
+  .section.active { display: block; animation: fadeSlide 0.5s ease; }
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
-    /* Compare */
-    .compare-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-    .cmp-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); overflow: hidden;
-    }
-    .cmp-head {
-      padding: 12px 14px; font-size: 14px; font-weight: 500;
-      border-bottom: 1px solid var(--border);
-    }
-    .cmp-head.solid { color: var(--solid-color); background: var(--solid-bg); }
-    .cmp-head.liquid { color: var(--liquid-color); background: var(--liquid-bg); }
-    .cmp-head.gas { color: var(--gas-color); background: var(--gas-bg); }
-    .cmp-body { padding: 10px 14px; }
-    .cmp-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 12px; border-bottom: 1px solid var(--border); }
-    .cmp-row:last-child { border: none; }
-    .cmp-k { color: var(--text-muted); }
-    .cmp-v { font-weight: 500; }
+  .container { max-width: 900px; margin: 0 auto; padding: 0 20px 60px; }
 
-    /* Temperature section */
-    .temp-section {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-top: 1rem;
-    }
-    .temp-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
-    .temp-title { font-size: 14px; font-weight: 500; }
-    .temp-subtitle { font-size: 12px; color: var(--text-muted); }
-    .slider-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
-    .slider-row label { font-size: 13px; color: var(--text-muted); white-space: nowrap; }
-    .slider-row input[type=range] {
-      flex: 1; -webkit-appearance: none; height: 4px;
-      background: var(--surface2); border-radius: 2px; outline: none;
-    }
-    .slider-row input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 16px; height: 16px;
-      border-radius: 50%; background: var(--accent);
-      cursor: pointer; transition: transform .15s;
-    }
-    .slider-row input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
-    .temp-display { font-size: 14px; font-weight: 600; min-width: 54px; text-align: right; }
-    .state-bar { display: flex; height: 26px; border-radius: 20px; overflow: hidden; border: 1px solid var(--border); }
-    .state-seg {
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px; font-weight: 500; transition: flex .4s cubic-bezier(.4,0,.2,1);
-      white-space: nowrap; overflow: hidden;
-    }
-    .seg-solid { background: rgba(88,166,255,0.25); color: var(--solid-color); }
-    .seg-liquid { background: rgba(63,185,80,0.25); color: var(--liquid-color); }
-    .seg-gas { background: rgba(240,136,62,0.25); color: var(--gas-color); }
-    .bar-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 6px; }
-    .curr-state {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 5px 14px; border-radius: 20px; font-size: 13px; font-weight: 500;
-      margin-top: 12px; border: 1px solid;
-    }
-    .curr-state.solid { background: var(--solid-bg); color: var(--solid-color); border-color: var(--solid-border); }
-    .curr-state.liquid { background: var(--liquid-bg); color: var(--liquid-color); border-color: var(--liquid-border); }
-    .curr-state.gas { background: var(--gas-bg); color: var(--gas-color); border-color: var(--gas-border); }
-    .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  /* ===== SPEAK BUTTON ===== */
+  .speak-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 0.85rem;
+    padding: 8px 20px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin: 12px auto;
+  }
+  .speak-btn.blue { background: rgba(0,201,255,0.15); color: var(--physical); border: 1px solid rgba(0,201,255,0.4); }
+  .speak-btn.orange { background: rgba(255,107,53,0.15); color: var(--chemical); border: 1px solid rgba(255,107,53,0.4); }
+  .speak-btn.gold { background: rgba(255,215,0,0.15); color: var(--accent); border: 1px solid rgba(255,215,0,0.4); }
+  .speak-btn:hover { transform: scale(1.05); }
+  .speak-btn.speaking { animation: pulse-speak 0.6s infinite alternate; }
+  @keyframes pulse-speak {
+    from { transform: scale(1); }
+    to { transform: scale(1.08); }
+  }
 
-    /* Info cards row */
-    .info-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 1rem; }
-    .info-card {
-      background: var(--surface2); border: 1px solid var(--border);
-      border-radius: 10px; padding: 12px 14px;
-    }
-    .info-card-label { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.4px; }
-    .info-card-val { font-size: 14px; font-weight: 500; }
+  /* ===== HERO CARD ===== */
+  .hero-card {
+    background: var(--panel);
+    border-radius: 20px;
+    padding: 32px;
+    margin-bottom: 24px;
+    border: 1px solid rgba(255,255,255,0.05);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--physical), var(--accent), var(--chemical));
+  }
+  .hero-card h2 {
+    font-family: 'Kanit', sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 12px;
+  }
+  .hero-card p { color: var(--text-dim); line-height: 1.8; }
 
-    /* Responsive */
-    @media (max-width: 600px) {
-      .viz-card { flex-direction: column; align-items: flex-start; }
-      .compare-grid { grid-template-columns: 1fr; }
-      .info-cards { grid-template-columns: repeat(3, 1fr); }
-      .canvas-wrap canvas { width: 100% !important; height: auto !important; }
-    }
+  /* ===== ANIMATION CANVAS AREA ===== */
+  .anim-box {
+    background: var(--panel2);
+    border-radius: 16px;
+    margin: 20px 0;
+    position: relative;
+    overflow: hidden;
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .anim-label {
+    position: absolute;
+    top: 12px; left: 16px;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
 
-    footer { text-align: center; margin-top: 3rem; font-size: 12px; color: var(--text-muted); }
-  </style>
+  /* ICE CUBE ANIMATION */
+  .ice-scene { display: flex; align-items: flex-end; gap: 30px; }
+  .ice-cube {
+    width: 60px; height: 60px;
+    background: linear-gradient(135deg, #a8edfc, #6dd5ed);
+    border-radius: 10px;
+    position: relative;
+    animation: float-ice 2s ease-in-out infinite;
+    box-shadow: 0 0 20px rgba(109,213,237,0.5);
+  }
+  @keyframes float-ice {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+  .arrow-right {
+    font-size: 2rem; color: var(--physical);
+    animation: blink-arrow 1s infinite;
+  }
+  @keyframes blink-arrow { 0%,100%{opacity:1}50%{opacity:0.3} }
+  .water-drops {
+    display: flex; flex-direction: column; gap: 4px; align-items: center;
+  }
+  .drop {
+    width: 12px; height: 16px;
+    background: radial-gradient(circle at 40% 30%, #7ef2ff, #0099cc);
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    animation: drip var(--d2, 1.5s) ease-in infinite var(--dd, 0s);
+    opacity: 0;
+  }
+  @keyframes drip {
+    0% { opacity:0; transform: translateY(-10px); }
+    30% { opacity:1; }
+    100% { opacity:0; transform: translateY(30px); }
+  }
+  .reversible-badge {
+    position: absolute; bottom: 12px; right: 16px;
+    background: rgba(0,201,255,0.15);
+    border: 1px solid rgba(0,201,255,0.4);
+    color: var(--physical);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+  }
+
+  /* MOLECULE ANIMATION */
+  .molecule-scene { position: relative; width: 100%; height: 100%; }
+  .molecule {
+    position: absolute;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; font-weight: 700;
+  }
+  .m-h2o { width:50px; height:50px; background: radial-gradient(circle at 40% 35%, #4fc3f7, #0277bd); left:15%; top:50%; transform:translateY(-50%); color:white; }
+  .m-h2o::after { content:'H₂O'; }
+  .m-nacl { width:55px; height:55px; background: radial-gradient(circle at 40% 35%, #ce93d8, #6a1b9a); left:40%; top:30%; color:white; animation: orbit 3s linear infinite; transform-origin: 50% 100%; }
+  .m-nacl::after { content:'NaCl'; }
+  .m-ions-na { width:35px; height:35px; background: radial-gradient(circle at 40% 35%, #ffcc80, #e65100); right:25%; top:25%; color:white; font-size:0.6rem; animation: float-ion 2s ease-in-out infinite 0.2s; }
+  .m-ions-na::after { content:'Na⁺'; }
+  .m-ions-cl { width:35px; height:35px; background: radial-gradient(circle at 40% 35%, #80cbc4, #00695c); right:15%; top:55%; color:white; font-size:0.6rem; animation: float-ion 2s ease-in-out infinite 0.5s; }
+  .m-ions-cl::after { content:'Cl⁻'; }
+  @keyframes orbit {
+    0%,100%{transform:translateY(-50%) rotate(0deg) translateX(0)}
+    50%{transform:translateY(-60%) rotate(5deg) translateX(5px)}
+  }
+  @keyframes float-ion {
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-8px)}
+  }
+
+  /* BURN ANIMATION */
+  .burn-scene { position: relative; width:100%; height:100%; }
+  .wood-log {
+    position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+    width: 80px; height: 25px;
+    background: linear-gradient(135deg, #8d6e63, #5d4037);
+    border-radius: 12px;
+  }
+  .flame { position: absolute; bottom: 52px; left: 50%; transform: translateX(-50%); }
+  .flame-inner {
+    width: 0; height: 0;
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-bottom: 55px solid #ff9800;
+    position: relative;
+    animation: flicker 0.4s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 10px #ff6d00);
+  }
+  .flame-inner::after {
+    content:'';
+    position: absolute;
+    bottom: -55px; left: -10px;
+    width: 0; height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 35px solid #ffeb3b;
+  }
+  @keyframes flicker {
+    from { transform: scaleX(1) scaleY(1) rotate(-2deg); }
+    to { transform: scaleX(0.9) scaleY(1.05) rotate(2deg); }
+  }
+  .smoke-particle {
+    position: absolute; border-radius: 50%;
+    background: rgba(160,160,160,0.5);
+    animation: smoke-up var(--sd, 2s) ease-out infinite var(--sdd, 0s);
+    opacity: 0;
+  }
+  @keyframes smoke-up {
+    0% { opacity:0.8; transform:translateY(0) scale(0.5); }
+    100% { opacity:0; transform:translateY(-80px) scale(2); }
+  }
+  .co2-badge {
+    position: absolute; top:20px; right:16px;
+    background: rgba(255,107,53,0.15);
+    border: 1px solid rgba(255,107,53,0.4);
+    color: var(--chemical);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+  }
+  .irreversible-badge {
+    position: absolute; bottom: 12px; right: 16px;
+    background: rgba(255,107,53,0.15);
+    border: 1px solid rgba(255,107,53,0.4);
+    color: var(--chemical);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+  }
+
+  /* RUST ANIMATION */
+  .rust-scene { display: flex; align-items: center; justify-content: center; gap: 30px; }
+  .iron-bar {
+    width: 80px; height: 24px;
+    background: linear-gradient(135deg, #90a4ae, #607d8b);
+    border-radius: 4px;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .rust-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #bf360c, #8d6e63);
+    border-radius: 4px;
+    animation: rust-grow 3s ease-in-out infinite alternate;
+    transform-origin: left;
+  }
+  @keyframes rust-grow {
+    from { transform: scaleX(0.1); opacity: 0.3; }
+    to { transform: scaleX(1); opacity: 0.9; }
+  }
+  .time-arrow { display: flex; flex-direction:column; align-items:center; gap:4px; }
+  .time-label { font-size: 0.7rem; color: var(--text-dim); }
+
+  /* ===== INFO CARDS ===== */
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+  @media(max-width:600px) { .info-grid { grid-template-columns: 1fr; } }
+  .info-card {
+    background: var(--panel2);
+    border-radius: 14px;
+    padding: 20px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .info-card h3 { font-family: 'Kanit', sans-serif; font-size: 1rem; margin-bottom: 8px; }
+  .info-card p { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; }
+  .info-card.blue { border-left: 3px solid var(--physical); }
+  .info-card.orange { border-left: 3px solid var(--chemical); }
+  .info-card.green { border-left: 3px solid var(--green); }
+
+  .examples-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .ex-chip {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  .ex-chip.blue { background: rgba(0,201,255,0.12); color: var(--physical); border: 1px solid rgba(0,201,255,0.25); }
+  .ex-chip.orange { background: rgba(255,107,53,0.12); color: var(--chemical); border: 1px solid rgba(255,107,53,0.25); }
+
+  /* ===== SIGNS SECTION ===== */
+  .signs-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  .sign-card {
+    background: var(--panel);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    border: 1px solid rgba(255,215,0,0.1);
+    transform: translateX(-30px);
+    opacity: 0;
+    transition: all 0.5s ease;
+    cursor: pointer;
+  }
+  .sign-card.visible { transform: translateX(0); opacity: 1; }
+  .sign-card:hover { border-color: rgba(255,215,0,0.4); box-shadow: 0 0 20px rgba(255,215,0,0.1); }
+  .sign-icon {
+    width: 64px; height: 64px; flex-shrink: 0;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem;
+    background: rgba(255,215,0,0.08);
+    border: 1px solid rgba(255,215,0,0.2);
+  }
+  .sign-info h3 { font-family:'Kanit',sans-serif; font-size:1.1rem; color: var(--accent); margin-bottom:6px; }
+  .sign-info p { font-size:0.9rem; color: var(--text-dim); line-height:1.6; }
+
+  /* BUBBLE ANIMATION */
+  .bubble-demo {
+    display: inline-block;
+    position: relative;
+    width: 60px; height: 60px;
+  }
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.8), rgba(100,200,255,0.3));
+    border: 1px solid rgba(100,200,255,0.6);
+    animation: rise var(--br, 1.5s) ease-in infinite var(--bd, 0s);
+    opacity: 0;
+  }
+  @keyframes rise {
+    0% { opacity:0; transform: translateY(40px) scale(0.3); }
+    30% { opacity:0.9; }
+    100% { opacity:0; transform: translateY(-10px) scale(1); }
+  }
+
+  /* COLOR CHANGE */
+  .color-bar {
+    width: 80px; height: 30px;
+    border-radius: 6px;
+    animation: color-change 3s ease-in-out infinite;
+  }
+  @keyframes color-change {
+    0% { background: #ffeb3b; }
+    50% { background: #4caf50; }
+    100% { background: #1a237e; }
+  }
+
+  /* TEMP CHANGE */
+  .thermometer {
+    width: 20px; height: 60px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+  .mercury {
+    position: absolute; bottom:0; width:100%;
+    background: linear-gradient(to top, #f44336, #ff8a65);
+    border-radius: 10px;
+    animation: temp-rise 2s ease-in-out infinite alternate;
+  }
+  @keyframes temp-rise {
+    from { height: 20%; }
+    to { height: 90%; }
+  }
+
+  /* LIGHT */
+  .light-burst {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff700, #ff9800, transparent);
+    animation: burst 1s ease-in-out infinite alternate;
+  }
+  @keyframes burst {
+    from { transform: scale(0.6); opacity: 0.5; }
+    to { transform: scale(1); opacity: 1; box-shadow: 0 0 30px #ff9800; }
+  }
+
+  /* PRECIPITATE */
+  .beaker-demo {
+    width: 50px; height: 65px;
+    background: rgba(100,200,255,0.1);
+    border: 2px solid rgba(100,200,255,0.4);
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    position: relative;
+    overflow: hidden;
+  }
+  .precipitate {
+    position: absolute; bottom: 0; width: 100%; height: 10px;
+    background: linear-gradient(135deg, #fff9c4, #f9a825);
+    animation: precip-grow 3s ease-in-out infinite alternate;
+    transform-origin: bottom;
+  }
+  @keyframes precip-grow {
+    from { height:5px; opacity:0.3; }
+    to { height:20px; opacity:1; }
+  }
+  .liquid-top { position:absolute; top:0; width:100%; height:8px; background:rgba(100,200,255,0.3); }
+
+  /* ===== QUIZ SECTION ===== */
+  .quiz-header { text-align: center; margin-bottom: 30px; }
+  .quiz-header h2 { font-family:'Kanit',sans-serif; font-size:1.8rem; color: var(--green); }
+  .score-display {
+    display: inline-block;
+    background: rgba(0,230,118,0.1);
+    border: 1px solid rgba(0,230,118,0.3);
+    border-radius: 50px;
+    padding: 8px 24px;
+    margin-top: 10px;
+    font-family:'Kanit',sans-serif;
+    font-size: 1rem;
+    color: var(--green);
+  }
+  .quiz-card {
+    background: var(--panel);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 16px;
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: all 0.3s;
+  }
+  .quiz-q {
+    font-family:'Kanit',sans-serif;
+    font-size: 1.1rem;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+  .quiz-emoji { font-size: 1.5rem; margin-right: 8px; }
+  .quiz-options { display: flex; gap: 12px; flex-wrap: wrap; }
+  .quiz-opt {
+    flex: 1; min-width: 140px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 2px solid rgba(255,255,255,0.1);
+    background: var(--panel2);
+    color: var(--text);
+    font-family:'Kanit',sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: center;
+  }
+  .quiz-opt:hover:not(:disabled) { border-color: rgba(255,255,255,0.4); transform: translateY(-2px); }
+  .quiz-opt.correct { background: rgba(0,230,118,0.2); border-color: var(--green); color: var(--green); }
+  .quiz-opt.wrong { background: rgba(244,67,54,0.2); border-color: #f44336; color: #f44336; }
+  .quiz-opt:disabled { cursor: not-allowed; }
+  .quiz-feedback {
+    margin-top: 12px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    display: none;
+  }
+  .quiz-feedback.show { display: block; animation: fadeSlide 0.3s ease; }
+  .quiz-feedback.correct { background: rgba(0,230,118,0.1); color: var(--green); border: 1px solid rgba(0,230,118,0.3); }
+  .quiz-feedback.wrong { background: rgba(244,67,54,0.1); color: #f44336; border: 1px solid rgba(244,67,54,0.3); }
+
+  .reset-btn {
+    display: block;
+    margin: 20px auto 0;
+    font-family:'Kanit',sans-serif;
+    padding: 12px 32px;
+    border-radius: 50px;
+    border: none;
+    background: linear-gradient(135deg, #00e676, #00b0ff);
+    color: #000;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: none;
+  }
+  .reset-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(0,230,118,0.5); }
+  .reset-btn.show { display: block; }
+
+  /* ===== COMPARISON TABLE ===== */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .compare-table th {
+    font-family:'Kanit',sans-serif;
+    padding: 14px 20px;
+    font-size: 0.95rem;
+  }
+  .compare-table th:first-child { background: var(--panel2); color: var(--text-dim); }
+  .compare-table th:nth-child(2) { background: rgba(0,201,255,0.15); color: var(--physical); }
+  .compare-table th:nth-child(3) { background: rgba(255,107,53,0.15); color: var(--chemical); }
+  .compare-table td {
+    padding: 12px 20px;
+    font-size: 0.9rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .compare-table td:first-child { background: var(--panel2); color: var(--text-dim); font-weight:600; }
+  .compare-table td:nth-child(2) { background: rgba(0,201,255,0.05); color: var(--text); }
+  .compare-table td:nth-child(3) { background: rgba(255,107,53,0.05); color: var(--text); }
+
+  /* Footer */
+  footer { text-align:center; padding:20px; color:var(--text-dim); font-size:0.8rem; position:relative; z-index:10; }
+</style>
 </head>
 <body>
-  <div class="wrapper">
 
-    <div class="header">
-      <div class="header-badge">วิทยาศาสตร์ ม.ต้น</div>
-      <h1>ทฤษฎี<span>อนุภาคของสสาร</span></h1>
-      <p>สสารทุกอย่างประกอบด้วยอนุภาคขนาดเล็กที่มองไม่เห็นด้วยตาเปล่า</p>
+<!-- STARS -->
+<div class="stars" id="stars"></div>
+
+<!-- HEADER -->
+<header>
+  <div class="badge">🔬 วิทยาศาสตร์ ม.ต้น</div>
+  <h1>นักสืบเปลี่ยนร่าง</h1>
+  <p class="subtitle">Physical Change vs Chemical Change</p>
+</header>
+
+<!-- NAV TABS -->
+<div class="nav-tabs">
+  <button class="tab-btn active-physical" onclick="showTab('physical')">👔 การเปลี่ยนแปลงทางกาย</button>
+  <button class="tab-btn" onclick="showTab('chemical')">🧬 การเปลี่ยนแปลงทางเคมี</button>
+  <button class="tab-btn" onclick="showTab('signs')">🔎 สัญญาณเตือน 5 ข้อ</button>
+  <button class="tab-btn" onclick="showTab('quiz')">🎯 ทดสอบความรู้</button>
+</div>
+
+<!-- ======= SECTION: PHYSICAL ======= -->
+<div id="section-physical" class="section active">
+  <div class="container">
+    <div class="hero-card">
+      <h2 style="color: var(--physical)">👔 การเปลี่ยนแปลงทางกายภาพ</h2>
+      <p>
+        การเปลี่ยนแปลงที่เกี่ยวข้องกับ <strong style="color:var(--physical)">รูปร่าง รูปลักษณ์ หรือสถานะ</strong> ของสาร
+        แต่องค์ประกอบทางเคมีภายในยังคงเหมือนเดิมทุกประการ
+        เปรียบเหมือน <em>"คนเปลี่ยนเสื้อผ้า แต่ข้างในยังเป็นคนเดิม"</em>
+      </p>
+      <button class="speak-btn blue" onclick="speak('physical-intro', this)" id="sp-physical-intro">
+        🔊 ฟังคำอธิบาย
+      </button>
     </div>
 
-    <div class="tabs">
-      <button class="tab-btn active solid" data-tab="solid" onclick="showTab('solid', this)">ของแข็ง</button>
-      <button class="tab-btn liquid" data-tab="liquid" onclick="showTab('liquid', this)">ของเหลว</button>
-      <button class="tab-btn gas" data-tab="gas" onclick="showTab('gas', this)">ก๊าซ</button>
-      <button class="tab-btn compare" data-tab="compare" onclick="showTab('compare', this)">เปรียบเทียบ</button>
+    <!-- ICE MELT ANIMATION -->
+    <div class="anim-box">
+      <span class="anim-label">🧊 น้ำแข็งละลาย → น้ำ</span>
+      <div class="ice-scene">
+        <div class="ice-cube"></div>
+        <div class="arrow-right">→</div>
+        <div class="water-drops">
+          <div class="drop" style="--d2:1.2s;--dd:0s"></div>
+          <div class="drop" style="--d2:1.5s;--dd:0.3s"></div>
+          <div class="drop" style="--d2:1.8s;--dd:0.6s"></div>
+        </div>
+      </div>
+      <div class="reversible-badge">✅ ผันกลับได้</div>
     </div>
 
-    <!-- SOLID -->
-    <div id="panel-solid" class="panel active">
-      <div class="viz-card">
-        <div class="canvas-wrap">
-          <canvas id="canvas-solid" width="200" height="180" style="background:#0d1117;"></canvas>
-        </div>
-        <div class="viz-info">
-          <div class="state-title" style="color:var(--solid-color)">ของแข็ง</div>
-          <div class="state-eng">Solid State</div>
-          <div class="props">
-            <div class="prop-row"><span class="prop-key">รูปร่าง</span><span class="prop-val">คงที่ ไม่เปลี่ยนแปลง</span></div>
-            <div class="prop-row"><span class="prop-key">ปริมาตร</span><span class="prop-val">คงที่</span></div>
-            <div class="prop-row"><span class="prop-key">อนุภาค</span><span class="prop-val">ชิดกันแน่น เป็นระเบียบ</span></div>
-            <div class="prop-row"><span class="prop-key">การเคลื่อนที่</span><span class="prop-val">สั่นอยู่กับที่เท่านั้น</span></div>
-            <div class="prop-row"><span class="prop-key">แรงยึดเหนี่ยว</span><span class="prop-val">แข็งแรงมาก</span></div>
-            <div class="prop-row"><span class="prop-key">ตัวอย่าง</span><span class="prop-val">น้ำแข็ง, เหล็ก, หิน, เกลือ</span></div>
-          </div>
-        </div>
+    <!-- MOLECULE ANIMATION (salt dissolving) -->
+    <div class="anim-box">
+      <span class="anim-label">🧂 เกลือละลายน้ำ — โมเลกุลยังเหมือนเดิม</span>
+      <div class="molecule-scene">
+        <div class="molecule m-h2o"></div>
+        <div class="molecule m-nacl"></div>
+        <div class="molecule m-ions-na"></div>
+        <div class="molecule m-ions-cl"></div>
       </div>
-      <div class="info-cards">
-        <div class="info-card">
-          <div class="info-card-label">ระยะห่างอนุภาค</div>
-          <div class="info-card-val" style="color:var(--solid-color)">ชิดมาก</div>
-        </div>
-        <div class="info-card">
-          <div class="info-card-label">พลังงาน</div>
-          <div class="info-card-val" style="color:var(--solid-color)">ต่ำสุด</div>
-        </div>
-        <div class="info-card">
-          <div class="info-card-label">การอัดตัว</div>
-          <div class="info-card-val" style="color:var(--solid-color)">อัดไม่ได้</div>
-        </div>
-      </div>
+      <div class="reversible-badge">✅ ผันกลับได้</div>
     </div>
 
-    <!-- LIQUID -->
-    <div id="panel-liquid" class="panel">
-      <div class="viz-card">
-        <div class="canvas-wrap">
-          <canvas id="canvas-liquid" width="200" height="180" style="background:#0d1117;"></canvas>
-        </div>
-        <div class="viz-info">
-          <div class="state-title" style="color:var(--liquid-color)">ของเหลว</div>
-          <div class="state-eng">Liquid State</div>
-          <div class="props">
-            <div class="prop-row"><span class="prop-key">รูปร่าง</span><span class="prop-val">เปลี่ยนตามภาชนะ</span></div>
-            <div class="prop-row"><span class="prop-key">ปริมาตร</span><span class="prop-val">คงที่</span></div>
-            <div class="prop-row"><span class="prop-key">อนุภาค</span><span class="prop-val">อยู่ใกล้กัน ไม่เป็นระเบียบ</span></div>
-            <div class="prop-row"><span class="prop-key">การเคลื่อนที่</span><span class="prop-val">ไหลผ่านกันได้</span></div>
-            <div class="prop-row"><span class="prop-key">แรงยึดเหนี่ยว</span><span class="prop-val">ปานกลาง</span></div>
-            <div class="prop-row"><span class="prop-key">ตัวอย่าง</span><span class="prop-val">น้ำ, น้ำมัน, ปรอท, แอลกอฮอล์</span></div>
-          </div>
-        </div>
+    <div class="info-grid">
+      <div class="info-card blue">
+        <h3 style="color:var(--physical)">✅ จุดเด่น</h3>
+        <p>• ไม่มีสารใหม่เกิดขึ้น<br>• ส่วนใหญ่ผันกลับได้<br>• องค์ประกอบทางเคมีเหมือนเดิม</p>
       </div>
-      <div class="info-cards">
-        <div class="info-card">
-          <div class="info-card-label">ระยะห่างอนุภาค</div>
-          <div class="info-card-val" style="color:var(--liquid-color)">ใกล้กัน</div>
-        </div>
-        <div class="info-card">
-          <div class="info-card-label">พลังงาน</div>
-          <div class="info-card-val" style="color:var(--liquid-color)">ปานกลาง</div>
-        </div>
-        <div class="info-card">
-          <div class="info-card-label">การอัดตัว</div>
-          <div class="info-card-val" style="color:var(--liquid-color)">อัดได้น้อย</div>
+      <div class="info-card blue">
+        <h3 style="color:var(--physical)">📚 ตัวอย่าง</h3>
+        <div class="examples-row">
+          <span class="ex-chip blue">💧 ต้มน้ำ</span>
+          <span class="ex-chip blue">🧊 ละลายน้ำแข็ง</span>
+          <span class="ex-chip blue">✂️ การหั่น</span>
+          <span class="ex-chip blue">🔨 การทุบ</span>
+          <span class="ex-chip blue">🧂 ละลายในน้ำ</span>
         </div>
       </div>
     </div>
 
-    <!-- GAS -->
-    <div id="panel-gas" class="panel">
-      <div class="viz-card">
-        <div class="canvas-wrap">
-          <canvas id="canvas-gas" width="200" height="180" style="background:#0d1117;"></canvas>
-        </div>
-        <div class="viz-info">
-          <div class="state-title" style="color:var(--gas-color)">ก๊าซ</div>
-          <div class="state-eng">Gas State</div>
-          <div class="props">
-            <div class="prop-row"><span class="prop-key">รูปร่าง</span><span class="prop-val">เปลี่ยนตามภาชนะ (ฟุ้งเต็ม)</span></div>
-            <div class="prop-row"><span class="prop-key">ปริมาตร</span><span class="prop-val">ไม่คงที่ อัดได้</span></div>
-            <div class="prop-row"><span class="prop-key">อนุภาค</span><span class="prop-val">อยู่ห่างกันมาก กระจัดกระจาย</span></div>
-            <div class="prop-row"><span class="prop-key">การเคลื่อนที่</span><span class="prop-val">อิสระและรวดเร็วมาก</span></div>
-            <div class="prop-row"><span class="prop-key">แรงยึดเหนี่ยว</span><span class="prop-val">น้อยมาก</span></div>
-            <div class="prop-row"><span class="prop-key">ตัวอย่าง</span><span class="prop-val">ไอน้ำ, อากาศ, ออกซิเจน, CO₂</span></div>
-          </div>
-        </div>
-      </div>
-      <div class="info-cards">
-        <div class="info-card">
-          <div class="info-card-label">ระยะห่างอนุภาค</div>
-          <div class="info-card-val" style="color:var(--gas-color)">ห่างมาก</div>
-        </div>
-        <div class="info-card">
-          <div class="info-card-label">พลังงาน</div>
-          <div class="info-card-val" style="color:var(--gas-color)">สูงสุด</div>
-        </div>
-        <div class="info-card">
-          <div class="info-card-label">การอัดตัว</div>
-          <div class="info-card-val" style="color:var(--gas-color)">อัดได้มาก</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- COMPARE -->
-    <div id="panel-compare" class="panel">
-      <div class="compare-grid">
-        <div class="cmp-card">
-          <div class="cmp-head solid">ของแข็ง (Solid)</div>
-          <div class="cmp-body">
-            <div class="cmp-row"><span class="cmp-k">รูปร่าง</span><span class="cmp-v" style="color:var(--solid-color)">คงที่</span></div>
-            <div class="cmp-row"><span class="cmp-k">ปริมาตร</span><span class="cmp-v" style="color:var(--solid-color)">คงที่</span></div>
-            <div class="cmp-row"><span class="cmp-k">การจัดเรียง</span><span class="cmp-v">ระเบียบ ชิดกัน</span></div>
-            <div class="cmp-row"><span class="cmp-k">การเคลื่อนที่</span><span class="cmp-v">สั่นกับที่</span></div>
-            <div class="cmp-row"><span class="cmp-k">แรงยึดเหนี่ยว</span><span class="cmp-v">แข็งแรงมาก</span></div>
-            <div class="cmp-row"><span class="cmp-k">พลังงาน</span><span class="cmp-v">ต่ำสุด</span></div>
-          </div>
-        </div>
-        <div class="cmp-card">
-          <div class="cmp-head liquid">ของเหลว (Liquid)</div>
-          <div class="cmp-body">
-            <div class="cmp-row"><span class="cmp-k">รูปร่าง</span><span class="cmp-v" style="color:var(--liquid-color)">ตามภาชนะ</span></div>
-            <div class="cmp-row"><span class="cmp-k">ปริมาตร</span><span class="cmp-v" style="color:var(--liquid-color)">คงที่</span></div>
-            <div class="cmp-row"><span class="cmp-k">การจัดเรียง</span><span class="cmp-v">ใกล้กัน ไม่ระเบียบ</span></div>
-            <div class="cmp-row"><span class="cmp-k">การเคลื่อนที่</span><span class="cmp-v">ไหลผ่านกัน</span></div>
-            <div class="cmp-row"><span class="cmp-k">แรงยึดเหนี่ยว</span><span class="cmp-v">ปานกลาง</span></div>
-            <div class="cmp-row"><span class="cmp-k">พลังงาน</span><span class="cmp-v">ปานกลาง</span></div>
-          </div>
-        </div>
-        <div class="cmp-card">
-          <div class="cmp-head gas">ก๊าซ (Gas)</div>
-          <div class="cmp-body">
-            <div class="cmp-row"><span class="cmp-k">รูปร่าง</span><span class="cmp-v" style="color:var(--gas-color)">ฟุ้งเต็มภาชนะ</span></div>
-            <div class="cmp-row"><span class="cmp-k">ปริมาตร</span><span class="cmp-v" style="color:var(--gas-color)">ไม่คงที่</span></div>
-            <div class="cmp-row"><span class="cmp-k">การจัดเรียง</span><span class="cmp-v">ห่างกัน กระจัดกระจาย</span></div>
-            <div class="cmp-row"><span class="cmp-k">การเคลื่อนที่</span><span class="cmp-v">อิสระ รวดเร็ว</span></div>
-            <div class="cmp-row"><span class="cmp-k">แรงยึดเหนี่ยว</span><span class="cmp-v">น้อยมาก</span></div>
-            <div class="cmp-row"><span class="cmp-k">พลังงาน</span><span class="cmp-v">สูงสุด</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Temperature Slider -->
-    <div class="temp-section" id="temp-section">
-      <div class="temp-title-row">
-        <div>
-          <div class="temp-title">การเปลี่ยนสถานะตามอุณหภูมิ</div>
-          <div class="temp-subtitle">น้ำ (H₂O) — ทดลองเลื่อน slider</div>
-        </div>
-        <div id="curr-state-badge"></div>
-      </div>
-      <div class="slider-row">
-        <label>อุณหภูมิ</label>
-        <input type="range" min="-30" max="150" value="25" id="temp-slider" oninput="updateTemp(this.value)">
-        <div class="temp-display" id="temp-val">25°C</div>
-      </div>
-      <div class="state-bar">
-        <div class="state-seg seg-solid" id="seg-solid">ของแข็ง</div>
-        <div class="state-seg seg-liquid" id="seg-liquid">ของเหลว</div>
-        <div class="state-seg seg-gas" id="seg-gas">ก๊าซ</div>
-      </div>
-      <div class="bar-labels"><span>-30°C</span><span>0°C</span><span>100°C</span><span>150°C</span></div>
-    </div>
-
-    <footer>สื่อการเรียนรู้วิทยาศาสตร์ — ทฤษฎีอนุภาคของสสาร</footer>
+    <table class="compare-table">
+      <tr>
+        <th>หัวข้อ</th>
+        <th>👔 กายภาพ</th>
+        <th>🧬 เคมี</th>
+      </tr>
+      <tr><td>สารใหม่</td><td>❌ ไม่มี</td><td>✅ มี</td></tr>
+      <tr><td>ผันกลับได้</td><td>✅ ส่วนใหญ่ได้</td><td>❌ มักไม่ได้</td></tr>
+      <tr><td>องค์ประกอบ</td><td>เหมือนเดิม</td><td>เปลี่ยนใหม่</td></tr>
+      <tr><td>ตัวอย่าง</td><td>น้ำแข็งละลาย</td><td>เหล็กเป็นสนิม</td></tr>
+    </table>
   </div>
+</div>
 
-  <script>
-    // --- Tab switching ---
-    function showTab(state, btn) {
-      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(b => {
-        b.classList.remove('active','solid','liquid','gas','compare');
-      });
-      document.getElementById('panel-' + state).classList.add('active');
-      btn.classList.add('active', state);
-      document.getElementById('temp-section').style.display = state === 'compare' ? 'none' : '';
-    }
+<!-- ======= SECTION: CHEMICAL ======= -->
+<div id="section-chemical" class="section">
+  <div class="container">
+    <div class="hero-card">
+      <h2 style="color: var(--chemical)">🧬 การเปลี่ยนแปลงทางเคมี</h2>
+      <p>
+        การเปลี่ยนแปลงที่ทำให้สารเดิมกลายเป็น <strong style="color:var(--chemical)">สารใหม่</strong>
+        ที่มีสมบัติแตกต่างจากเดิมอย่างสิ้นเชิง
+        เปรียบเหมือน <em>"การแปลงร่างเป็นคนละคน เปลี่ยนแล้วเปลี่ยนเลย"</em>
+      </p>
+      <button class="speak-btn orange" onclick="speak('chemical-intro', this)" id="sp-chemical-intro">
+        🔊 ฟังคำอธิบาย
+      </button>
+    </div>
 
-    // --- Particle animations ---
-    function solidDraw(ctx, W, H, t) {
-      ctx.clearRect(0, 0, W, H);
-      const cols = 8, rows = 7;
-      const px = W / (cols + 1), py = (H - 20) / (rows + 1);
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-          const bx = px * (c + 1), by = 18 + py * (r + 1);
-          const jx = Math.sin(t * 3 + (r * cols + c) * 0.73) * 1.3;
-          const jy = Math.cos(t * 2.7 + (r * cols + c) * 1.1) * 1.3;
-          ctx.beginPath();
-          ctx.arc(bx + jx, by + jy, 6.5, 0, Math.PI * 2);
-          ctx.fillStyle = '#58a6ff';
-          ctx.globalAlpha = 0.82;
-          ctx.fill();
-          ctx.globalAlpha = 1;
-        }
-      }
-    }
+    <!-- BURN ANIMATION -->
+    <div class="anim-box">
+      <span class="anim-label">🔥 การเผาไหม้ — เกิดก๊าซ CO₂ และน้ำ</span>
+      <div class="burn-scene">
+        <div class="wood-log"></div>
+        <div class="flame">
+          <div class="flame-inner"></div>
+        </div>
+        <div class="smoke-particle" style="width:20px;height:20px;left:45%;bottom:100px;--sd:2s;--sdd:0s"></div>
+        <div class="smoke-particle" style="width:15px;height:15px;left:50%;bottom:110px;--sd:2.3s;--sdd:0.4s"></div>
+        <div class="smoke-particle" style="width:25px;height:25px;left:40%;bottom:105px;--sd:1.8s;--sdd:0.7s"></div>
+      </div>
+      <div class="co2-badge">🌫️ CO₂ + H₂O</div>
+      <div class="irreversible-badge">❌ ผันกลับไม่ได้</div>
+    </div>
 
-    function liquidDraw(ctx, W, H, particles) {
-      ctx.clearRect(0, 0, W, H);
-      // surface wave
-      ctx.beginPath();
-      ctx.moveTo(0, 18);
-      for (let x = 0; x <= W; x += 4) {
-        ctx.lineTo(x, 18 + Math.sin(x * 0.12 + Date.now() * 0.002) * 2);
-      }
-      ctx.lineTo(W, 0); ctx.lineTo(0, 0); ctx.closePath();
-      ctx.fillStyle = 'rgba(63,185,80,0.06)';
-      ctx.fill();
+    <!-- RUST ANIMATION -->
+    <div class="anim-box">
+      <span class="anim-label">🔩 เหล็กเป็นสนิม — Fe → Fe₂O₃</span>
+      <div class="rust-scene">
+        <div style="text-align:center">
+          <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:8px">เหล็กใหม่ → สนิม</div>
+          <div class="iron-bar">
+            <div class="rust-overlay"></div>
+          </div>
+        </div>
+        <div class="time-arrow">
+          <span style="font-size:1.5rem">⏳</span>
+          <span class="time-label">เวลา</span>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:0.75rem;color:var(--chemical);margin-bottom:8px">Fe₂O₃</div>
+          <div class="iron-bar" style="background:linear-gradient(135deg,#8d6e63,#5d4037)"></div>
+        </div>
+      </div>
+      <div class="irreversible-badge">❌ ผันกลับไม่ได้</div>
+    </div>
 
-      particles.forEach(p => {
-        p.x += p.vx; p.y += p.vy;
-        if (p.x < 9 || p.x > W - 9) p.vx *= -1;
-        if (p.y < 20 || p.y > H - 9) p.vy *= -1;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 7, 0, Math.PI * 2);
-        ctx.fillStyle = '#3fb950';
-        ctx.globalAlpha = 0.78;
-        ctx.fill();
-        ctx.globalAlpha = 1;
-      });
-    }
+    <div class="info-grid">
+      <div class="info-card orange">
+        <h3 style="color:var(--chemical)">⚠️ จุดเด่น</h3>
+        <p>• มีสารใหม่เกิดขึ้นเสมอ<br>• มักผันกลับไม่ได้<br>• สมบัติของสารเปลี่ยนไปอย่างสิ้นเชิง</p>
+      </div>
+      <div class="info-card orange">
+        <h3 style="color:var(--chemical)">📚 ตัวอย่าง</h3>
+        <div class="examples-row">
+          <span class="ex-chip orange">🔥 การเผาไหม้</span>
+          <span class="ex-chip orange">🔩 การเกิดสนิม</span>
+          <span class="ex-chip orange">🍌 อาหารเน่าเสีย</span>
+          <span class="ex-chip orange">🍎 ผลไม้สุก</span>
+          <span class="ex-chip orange">🧪 การระเบิด</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-    function gasDraw(ctx, W, H, particles) {
-      ctx.clearRect(0, 0, W, H);
-      particles.forEach(p => {
-        p.x += p.vx; p.y += p.vy;
-        if (p.x < 7 || p.x > W - 7) { p.vx *= -1; p.x = Math.max(7, Math.min(W-7, p.x)); }
-        if (p.y < 7 || p.y > H - 7) { p.vy *= -1; p.y = Math.max(7, Math.min(H-7, p.y)); }
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 5.5, 0, Math.PI * 2);
-        ctx.fillStyle = '#f0883e';
-        ctx.globalAlpha = 0.8;
-        ctx.fill();
-        ctx.globalAlpha = 1;
-      });
-    }
+<!-- ======= SECTION: SIGNS ======= -->
+<div id="section-signs" class="section">
+  <div class="container">
+    <div class="hero-card">
+      <h2 style="color: var(--accent)">🔎 5 สัญญาณเตือนปฏิกิริยาเคมี</h2>
+      <p>ถ้าเห็นสัญญาณเหล่านี้ มั่นใจได้เลยว่าเป็น <strong style="color:var(--chemical)">การเปลี่ยนแปลงทางเคมี</strong> แน่นอน! คลิกแต่ละการ์ดเพื่อฟังคำอธิบาย</p>
+      <button class="speak-btn gold" onclick="speak('signs-intro', this)" id="sp-signs-intro">
+        🔊 ฟังคำอธิบาย
+      </button>
+    </div>
 
-    // Init
-    const cSolid = document.getElementById('canvas-solid');
-    const cLiquid = document.getElementById('canvas-liquid');
-    const cGas = document.getElementById('canvas-gas');
-    const ctxS = cSolid.getContext('2d');
-    const ctxL = cLiquid.getContext('2d');
-    const ctxG = cGas.getContext('2d');
+    <div class="signs-grid" id="signs-grid">
 
-    const liquidParticles = Array.from({length: 34}, () => ({
-      x: 15 + Math.random() * 170, y: 25 + Math.random() * 145,
-      vx: (Math.random() - 0.5) * 0.65, vy: (Math.random() - 0.5) * 0.65
-    }));
-    const gasParticles = Array.from({length: 20}, () => ({
-      x: 15 + Math.random() * 170, y: 15 + Math.random() * 150,
-      vx: (Math.random() - 0.5) * 2.4, vy: (Math.random() - 0.5) * 2.4
-    }));
+      <div class="sign-card" onclick="speakSign(0, this)">
+        <div class="sign-icon">
+          <div style="position:relative;width:60px;height:60px">
+            <div class="bubble" style="width:10px;height:10px;left:20px;--br:1.5s;--bd:0s"></div>
+            <div class="bubble" style="width:8px;height:8px;left:35px;--br:1.8s;--bd:0.5s"></div>
+            <div class="bubble" style="width:12px;height:12px;left:10px;--br:1.3s;--bd:0.8s"></div>
+            <span style="position:absolute;bottom:2px;left:50%;transform:translateX(-50%);font-size:1.5rem">🫧</span>
+          </div>
+        </div>
+        <div class="sign-info">
+          <h3>1. มีก๊าซเกิดขึ้น</h3>
+          <p>เห็นฟองฟู่ขึ้นมา <strong>โดยไม่ได้มาจากการต้มน้ำให้เดือด</strong> เช่น ใส่เบกกิ้งโซดาในน้ำส้มสายชู</p>
+        </div>
+      </div>
 
-    let t = 0;
-    function animate() {
-      t += 0.05;
-      solidDraw(ctxS, 200, 180, t);
-      liquidDraw(ctxL, 200, 180, liquidParticles);
-      gasDraw(ctxG, 200, 180, gasParticles);
-      requestAnimationFrame(animate);
-    }
-    animate();
+      <div class="sign-card" onclick="speakSign(1, this)">
+        <div class="sign-icon">
+          <div class="color-bar"></div>
+        </div>
+        <div class="sign-info">
+          <h3>2. เปลี่ยนสี</h3>
+          <p>สีเปลี่ยนไปจากเดิมอย่างชัดเจน เช่น <strong>กล้วยเหลือง → กลายเป็นดำ</strong> หรือเหล็กเป็นสีน้ำตาลแดง</p>
+        </div>
+      </div>
 
-    // --- Temperature slider ---
-    function updateTemp(val) {
-      const v = parseInt(val);
-      document.getElementById('temp-val').textContent = v + '°C';
-      const total = 200;
-      let s, l, g;
-      if (v < 0) { s = total; l = 0; g = 0; }
-      else if (v < 100) {
-        s = Math.round(total * 0.14);
-        l = total - s; g = 0;
-      } else {
-        s = Math.round(total * 0.10);
-        l = Math.round(total * 0.12);
-        g = total - s - l;
-      }
-      const segS = document.getElementById('seg-solid');
-      const segL = document.getElementById('seg-liquid');
-      const segG = document.getElementById('seg-gas');
-      segS.style.flex = s; segS.style.display = s > 0 ? '' : 'none';
-      segL.style.flex = l; segL.style.display = l > 0 ? '' : 'none';
-      segG.style.flex = g; segG.style.display = g > 0 ? '' : 'none';
+      <div class="sign-card" onclick="speakSign(2, this)">
+        <div class="sign-icon">
+          <div style="display:flex;align-items:center;gap:6px">
+            <div class="thermometer"><div class="mercury" style="height:20%"></div></div>
+            <span style="font-size:1.2rem">🌡️</span>
+          </div>
+        </div>
+        <div class="sign-info">
+          <h3>3. อุณหภูมิเปลี่ยน</h3>
+          <p>สารร้อนขึ้นหรือเย็นลงเองเมื่อผสมกัน <strong>โดยไม่ได้ใช้เปลวไฟ</strong> เช่น ผสมน้ำกับกรด</p>
+        </div>
+      </div>
 
-      let label, cls, desc;
-      if (v < 0) { label = 'ของแข็ง'; cls = 'solid'; desc = 'น้ำแข็ง (Ice)'; }
-      else if (v < 100) { label = 'ของเหลว'; cls = 'liquid'; desc = 'น้ำ (Water)'; }
-      else { label = 'ก๊าซ'; cls = 'gas'; desc = 'ไอน้ำ (Steam)'; }
-      document.getElementById('curr-state-badge').innerHTML =
-        `<span class="curr-state ${cls}"><span class="dot"></span>${desc} — ${label}</span>`;
-    }
-    updateTemp(25);
-  </script>
+      <div class="sign-card" onclick="speakSign(3, this)">
+        <div class="sign-icon">
+          <div class="light-burst"></div>
+        </div>
+        <div class="sign-info">
+          <h3>4. มีแสงหรือเสียง</h3>
+          <p>เกิดแสงสว่างหรือเสียงดัง เช่น <strong>การจุดพลุ หรือการเผาไหม้</strong> ที่ให้แสงและเสียง</p>
+        </div>
+      </div>
+
+      <div class="sign-card" onclick="speakSign(4, this)">
+        <div class="sign-icon">
+          <div class="beaker-demo">
+            <div class="liquid-top"></div>
+            <div class="precipitate"></div>
+          </div>
+        </div>
+        <div class="sign-info">
+          <h3>5. เกิดตะกอน</h3>
+          <p>ของเหลวใสสองอย่างผสมกันแล้วมี <strong>"ผง" หรือตะกอนเกิดขึ้น</strong> ที่ก้นภาชนะ</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ======= SECTION: QUIZ ======= -->
+<div id="section-quiz" class="section">
+  <div class="container">
+    <div class="quiz-header">
+      <h2>🎯 ทดสอบความรู้</h2>
+      <p style="color:var(--text-dim);margin-top:8px">คลิกเลือกคำตอบ — Physical หรือ Chemical?</p>
+      <div class="score-display">คะแนน: <span id="score">0</span> / <span id="total">0</span></div>
+    </div>
+
+    <div id="quiz-container"></div>
+    <button class="reset-btn" id="reset-btn" onclick="resetQuiz()">🔄 ทำแบบทดสอบใหม่</button>
+  </div>
+</div>
+
+<footer>🔬 สื่อการสอนโดย AI • วิทยาศาสตร์ ม.ต้น • Physical vs Chemical Change</footer>
+
+<script>
+// ===== STARS =====
+const starsEl = document.getElementById('stars');
+for(let i=0;i<80;i++){
+  const s = document.createElement('div');
+  s.className = 'star';
+  s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*4}s;--delay:${Math.random()*4}s;opacity:${0.1+Math.random()*0.5}`;
+  starsEl.appendChild(s);
+}
+
+// ===== TABS =====
+const tabs = ['physical','chemical','signs','quiz'];
+const tabBtns = document.querySelectorAll('.tab-btn');
+const activeClasses = ['active-physical','active-chemical','active-signs','active-quiz'];
+
+function showTab(name){
+  tabs.forEach((t,i)=>{
+    document.getElementById('section-'+t).classList.remove('active');
+    tabBtns[i].classList.remove(...activeClasses);
+  });
+  document.getElementById('section-'+name).classList.add('active');
+  const idx = tabs.indexOf(name);
+  tabBtns[idx].classList.add(activeClasses[idx]);
+  if(name==='signs') triggerSignCards();
+  if(name==='quiz') initQuiz();
+  window.speechSynthesis && window.speechSynthesis.cancel();
+}
+
+// ===== SIGN CARDS ANIMATION =====
+function triggerSignCards(){
+  const cards = document.querySelectorAll('.sign-card');
+  cards.forEach((c,i)=>{
+    setTimeout(()=>c.classList.add('visible'), i*150);
+  });
+}
+
+// ===== SPEECH =====
+const speeches = {
+  'physical-intro': 'การเปลี่ยนแปลงทางกายภาพ คือ การเปลี่ยนแปลงที่เกี่ยวข้องกับรูปร่างภายนอกหรือสถานะของสาร แต่องค์ประกอบทางเคมีภายในยังคงเหมือนเดิม เปรียบเหมือนคนเปลี่ยนเสื้อผ้าแต่ข้างในยังเป็นคนเดิม ตัวอย่างเช่น น้ำแข็งละลายเป็นน้ำ หรือเกลือละลายในน้ำ สารยังคงเหมือนเดิมไม่มีสารใหม่เกิดขึ้น',
+  'chemical-intro': 'การเปลี่ยนแปลงทางเคมี คือ การเปลี่ยนแปลงที่ทำให้สารเดิมกลายเป็นสารใหม่ที่มีสมบัติแตกต่างจากเดิมอย่างสิ้นเชิง เปรียบเหมือนการแปลงร่างเป็นคนละคน ตัวอย่างเช่น การเผาไหม้ เหล็กเป็นสนิม หรืออาหารเน่าเสีย การเปลี่ยนแปลงเหล่านี้มักจะผันกลับคืนไม่ได้',
+  'signs-intro': 'สัญญาณ 5 ข้อที่บอกว่าเป็นปฏิกิริยาเคมี ได้แก่ หนึ่ง มีก๊าซเกิดขึ้น สอง สีเปลี่ยนไปชัดเจน สาม อุณหภูมิเปลี่ยนแปลงเมื่อผสมสาร สี่ มีแสงหรือเสียงเกิดขึ้น และห้า เกิดตะกอนในของเหลว ถ้าเห็นสัญญาณเหล่านี้ มั่นใจได้เลยว่าเป็นการเปลี่ยนแปลงทางเคมี'
+};
+
+const signSpeeches = [
+  'สัญญาณที่หนึ่ง มีก๊าซเกิดขึ้น เมื่อเห็นฟองฟู่ขึ้นมาโดยไม่ได้มาจากการต้มน้ำให้เดือด เช่น ใส่เบกกิ้งโซดาในน้ำส้มสายชูแล้วเกิดฟองฟู่ นั่นคือก๊าซคาร์บอนไดออกไซด์ที่เกิดขึ้นจากปฏิกิริยาเคมี',
+  'สัญญาณที่สอง การเปลี่ยนสี สีของสารเปลี่ยนไปจากเดิมอย่างชัดเจน เช่น กล้วยเหลืองกลายเป็นสีดำ หรือเหล็กเงาๆ กลายเป็นสีน้ำตาลแดงของสนิม',
+  'สัญญาณที่สาม อุณหภูมิเปลี่ยนแปลง สารร้อนขึ้นหรือเย็นลงเองเมื่อผสมกัน โดยไม่ได้ใช้เปลวไฟ เช่น ผสมน้ำกับกรดเข้มข้นจะรู้สึกร้อนวูบขึ้นมาทันที',
+  'สัญญาณที่สี่ มีแสงหรือเสียงเกิดขึ้น เช่น การจุดพลุที่มีทั้งแสงและเสียง หรือการเผาไหม้ที่ให้แสงสว่าง สิ่งเหล่านี้เกิดจากปฏิกิริยาเคมีที่ปล่อยพลังงานออกมา',
+  'สัญญาณที่ห้า เกิดตะกอน เมื่อเอาของเหลวใสสองอย่างมาผสมกันแล้วมีผงหรือตะกอนเกิดขึ้นที่ก้นภาชนะ แสดงว่ามีสารใหม่เกิดขึ้นแล้ว'
+];
+
+let currentSpeakBtn = null;
+
+function speak(key, btn){
+  if(!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  if(currentSpeakBtn) {
+    currentSpeakBtn.classList.remove('speaking');
+    currentSpeakBtn.textContent = '🔊 ฟังคำอธิบาย';
+  }
+  const text = speeches[key];
+  if(!text) return;
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'th-TH';
+  utter.rate = 0.9;
+  utter.pitch = 1;
+  btn.classList.add('speaking');
+  btn.textContent = '⏸️ กำลังพูด...';
+  currentSpeakBtn = btn;
+  utter.onend = ()=>{ btn.classList.remove('speaking'); btn.textContent = '🔊 ฟังคำอธิบาย'; };
+  window.speechSynthesis.speak(utter);
+}
+
+function speakSign(idx, card){
+  if(!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(signSpeeches[idx]);
+  utter.lang = 'th-TH';
+  utter.rate = 0.9;
+  window.speechSynthesis.speak(utter);
+  document.querySelectorAll('.sign-card').forEach(c=>c.style.borderColor='');
+  card.style.borderColor = 'rgba(255,215,0,0.6)';
+  card.style.boxShadow = '0 0 20px rgba(255,215,0,0.2)';
+  utter.onend = ()=>{ card.style.borderColor=''; card.style.boxShadow=''; };
+}
+
+// ===== QUIZ =====
+const quizData = [
+  { q: '🔥 เผากระดาษ ควันดำโขมง', a: 1, feedback: 'ถูกต้อง! การเผาไหม้สร้างสารใหม่คือ CO₂ H₂O และเขม่า — เป็นเคมีแน่นอน' },
+  { q: '🧊 น้ำแข็งละลายในแก้ว', a: 0, feedback: 'ถูกต้อง! H₂O ยังคงเป็น H₂O แค่เปลี่ยนสถานะ — เป็นกายภาพ' },
+  { q: '🍌 กล้วยเปลี่ยนจากเหลืองเป็นดำ', a: 1, feedback: 'ถูกต้อง! สารในกล้วยเกิดปฏิกิริยาออกซิเดชัน — เป็นเคมี' },
+  { q: '✂️ หั่นผักเป็นชิ้นเล็กๆ', a: 0, feedback: 'ถูกต้อง! รูปร่างเปลี่ยนแต่ยังเป็นผักเหมือนเดิม — เป็นกายภาพ' },
+  { q: '🔩 ตะปูเหล็กเกิดสนิมแดง', a: 1, feedback: 'ถูกต้อง! Fe ทำปฏิกิริยากับ O₂ เกิด Fe₂O₃ ใหม่ — เป็นเคมี' },
+  { q: '🧂 เกลือละลายในน้ำ', a: 0, feedback: 'ถูกต้อง! เกลือยังคงเป็น NaCl แค่แยกเป็นไอออน — เป็นกายภาพ' },
+  { q: '💥 จุดพลุสีสันสวยงาม', a: 1, feedback: 'ถูกต้อง! มีแสงและเสียง สารเปลี่ยนไปสิ้นเชิง — เป็นเคมี' },
+  { q: '🫧 ผสมน้ำส้มสายชูกับเบกกิ้งโซดา เกิดฟองฟู่', a: 1, feedback: 'ถูกต้อง! เกิดก๊าซ CO₂ ขึ้นมา — เป็นเคมีแน่นอน' },
+];
+
+let score = 0;
+let answered = 0;
+
+function initQuiz(){
+  const container = document.getElementById('quiz-container');
+  if(container.innerHTML !== '') return;
+  score = 0; answered = 0;
+  updateScore();
+  container.innerHTML = quizData.map((q,i)=>`
+    <div class="quiz-card" id="qcard-${i}">
+      <div class="quiz-q"><span class="quiz-emoji">${i+1}.</span> ${q.q}</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answer(${i}, 0, this)">👔 กายภาพ</button>
+        <button class="quiz-opt" onclick="answer(${i}, 1, this)">🧬 เคมี</button>
+      </div>
+      <div class="quiz-feedback" id="qfeed-${i}"></div>
+    </div>
+  `).join('');
+}
+
+function answer(qIdx, choice, btn){
+  const q = quizData[qIdx];
+  const card = document.getElementById('qcard-'+qIdx);
+  const feed = document.getElementById('qfeed-'+qIdx);
+  const opts = card.querySelectorAll('.quiz-opt');
+  opts.forEach(o=>o.disabled=true);
+  answered++;
+  if(choice === q.a){
+    btn.classList.add('correct');
+    score++;
+    feed.className = 'quiz-feedback correct show';
+    feed.innerHTML = '✅ ' + q.feedback;
+    speakFeedback('ถูกต้องมาก! ' + q.feedback);
+  } else {
+    btn.classList.add('wrong');
+    opts[q.a].classList.add('correct');
+    feed.className = 'quiz-feedback wrong show';
+    feed.innerHTML = '❌ ไม่ถูกต้อง — ' + q.feedback;
+    speakFeedback('ไม่ถูกต้อง ' + q.feedback);
+  }
+  updateScore();
+  if(answered === quizData.length){
+    document.getElementById('reset-btn').classList.add('show');
+  }
+}
+
+function speakFeedback(text){
+  if(!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang='th-TH'; utter.rate=0.95;
+  window.speechSynthesis.speak(utter);
+}
+
+function updateScore(){
+  document.getElementById('score').textContent = score;
+  document.getElementById('total').textContent = answered;
+}
+
+function resetQuiz(){
+  document.getElementById('quiz-container').innerHTML='';
+  document.getElementById('reset-btn').classList.remove('show');
+  score=0; answered=0; updateScore();
+  initQuiz();
+}
+</script>
 </body>
 </html>
